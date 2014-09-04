@@ -4,25 +4,36 @@
 <title>
 	My webgl 1
 </title>
-<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<!--<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>-->
 <script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="MV.js"></script>
 <script type="text/javascript" src="webgl1.js"></script>
 <script id="vs" type="x-shader/x-vertex">
 attribute vec3 aVertexPosition;
+attribute vec3 aVertexColor;
 
+varying vec4 color;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
+uniform float theta;
 
 void main(void){
-	vec4 pos = vec4(aVertexPosition, 1.0);
-	gl_Position = uPMatrix * uMVMatrix * pos;
+	vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+	gl_Position = pos;
+	
+	
+	color = vec4(aVertexColor, 1.0);
+	
+	
 }
 </script>
 <script id="fs" type="x-shader/x-fragment">
 precision mediump float;
 
+varying vec4 color;
 void main(){
-	gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+	//gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+	gl_FragColor = color;
 }
 </script>
 </head>
