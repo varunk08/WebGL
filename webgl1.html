@@ -11,6 +11,7 @@
 <script id="vs" type="x-shader/x-vertex">
 attribute vec3 aVertexPosition;
 attribute vec3 aVertexColor;
+attribute vec3 aVertexNormal;
 
 varying vec4 color;
 uniform mat4 uMVMatrix;
@@ -39,5 +40,7 @@ void main(){
 </head>
 <body>
 <canvas id="mycanvas" width="500" height="500"></canvas>
+<button id="button1">Sample button</button>
+<textarea id="txtArea" width = "500" height="200"></textarea>
 </body>
 </html>
