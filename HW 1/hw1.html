@@ -9,11 +9,25 @@
 <script id="vs" type="x-shader/x-vertex">
 	attribute vec2 aVertexPosition;
 	attribute vec3 aVertexColor;
-
+	uniform float theta;
+	uniform bool swirl;
 	varying vec3 vColor;
+	
 	void main()
 	{
-		gl_Position = vec4(aVertexPosition, 0.0, 1.0);
+		vec2 pos = aVertexPosition;
+		float R = 1.0;
+		if(swirl){
+			R = sqrt(pos.x * pos.x + pos.y * pos.y);
+		}
+		float costh = cos( R * theta);
+		float sinth = sin( R * theta);
+		
+		gl_Position.x = pos.x * costh - pos.y * sinth;
+		gl_Position.y = pos.y * costh + pos.x * sinth;
+		gl_Position.z = 0.0;
+		gl_Position.w = 1.0;
+		
 		vColor = aVertexColor;
 	}
 </script>
@@ -32,8 +46,18 @@
 <canvas id="mycanvas" width="400" height="400">No canvas supported</canvas>
 </br>
 Theta:
-<input id="thetaSlider" type="range"></input>
-<input id="depthSlider" type="range"></input>
-<input id="polygonDropDwn"></input>
+<input id="thetaSlider" type="range" min="0" max="360" value="0" oninput="ThetaChanged(this.value)"></input><label id="thetaVal"></label>
+</br>
+Subdivide:
+<input id="depthSlider" type="range"  min="0" max="5" oninput="SubChanged(this.value)"></input><label id="subVal"></label>
+<form>
+<input type="radio" name="spiral" value="1" onclick="SwirlChanged(this.value)">yes<br>
+<input type="radio" name="spiral" value="0" onclick="SwirlChanged(this.value)" checked="checked">no<br>
+<select id="polyDropdown" name="polygon" onchange="PolygonChanged(this.value)">
+<option value="triangle">Triangle</option>
+<option value="square">Square</option>
+</select>
+</form>
+
 </body>
 </html>
