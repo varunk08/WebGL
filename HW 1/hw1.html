@@ -1,0 +1,39 @@
+<!DOCTYPE>
+<html>
+<head>
+<title>Homework 1</title>
+<script type="text/javascript" src="initShaders.js"></script>
+<script type="text/javascript" src="MV.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="hw1.js"></script>
+<script id="vs" type="x-shader/x-vertex">
+	attribute vec2 aVertexPosition;
+	attribute vec3 aVertexColor;
+
+	varying vec3 vColor;
+	void main()
+	{
+		gl_Position = vec4(aVertexPosition, 0.0, 1.0);
+		vColor = aVertexColor;
+	}
+</script>
+<script id="fs" type="x-shader/x-fragment">
+	precision mediump float;
+
+	varying vec3 vColor;
+	void main()
+	{
+		//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		gl_FragColor = vec4(vColor, 1.0);
+	}
+</script>
+</head>
+<body>
+<canvas id="mycanvas" width="400" height="400">No canvas supported</canvas>
+</br>
+Theta:
+<input id="thetaSlider" type="range"></input>
+<input id="depthSlider" type="range"></input>
+<input id="polygonDropDwn"></input>
+</body>
+</html>
