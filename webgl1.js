@@ -260,3 +260,4 @@ function triangle(a,b,c,color)
 		colors.push(baseColors[color]);
 		points.push(c);
 }
+
