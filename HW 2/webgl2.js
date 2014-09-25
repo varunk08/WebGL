@@ -82,7 +82,7 @@ var stack = [];
 var cube = 0;
 var cubeGroup = 1;
 var pinwheel = 2;
-var theta = [0, 0, 0];
+var theta = [1, 1, 0];
 
 window.onload = function init() {
 
@@ -154,6 +154,9 @@ var render = function() {
     theta[cube] = 10;
 	modelViewMatrix = mat4();
 	cubeModelMatrix = mult (rotate(theta[cube], vec3(0.0, 1.0, 0.0)), cubeModelMatrix);
+	cubeModelMatrix = mult(translate(0.3, 0.0, 0.0),cubeModelMatrix);
+	theta[cubeGroup] = 1;
+	//cubeModelMatrix = mult(rotate(theta[cubeGroup],vec3(0.0,0.0,1.0)),cubeModelMatrix);
 	modelViewMatrix = mult(modelViewMatrix, cubeModelMatrix);
 	
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(modelViewMatrix) );
