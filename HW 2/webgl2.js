@@ -79,8 +79,8 @@ interpQuad( 1, 0, 3, 2 );
 interpQuad( 2, 3, 7, 6 );
 interpQuad( 3, 0, 4, 7 );
 interpQuad( 6, 5, 1, 2 );
-    interpQuad( 4, 5, 6, 7 );
- interpQuad( 5, 4, 0, 1 );
+interpQuad( 4, 5, 6, 7 );
+interpQuad( 5, 4, 0, 1 );
 }
 function colorCube() {
     quad( 1, 0, 3, 2 );
@@ -188,9 +188,9 @@ var cubeModelMatrix;
 var render = function() {
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-    theta[cube] += 10;
-    theta[innerwheel] += 3;
-    theta[outerwheel] += 0;
+    theta[cube] += 5;
+    theta[innerwheel] += 4;
+    theta[outerwheel] += 2;
 	modelViewMatrix = mat4();
     var coff1 = 2.0;
     var coffouter = 5.0;
@@ -200,6 +200,8 @@ var render = function() {
     //initial setup of cube
     tempMat = mult (rotate(theta[cube], vec3(0.0, 1.0, 0.0)), cubeModelMatrix);
     
+    tempMat = mult(rotate(-theta[innerwheel],vec3(0.0,0.0,1.0)), tempMat);
+tempMat = mult(rotate(theta[outerwheel],vec3(0.0,0.0,1.0)), tempMat);
     //first cube
     outerwheelmat = mult( rotate(theta[outerwheel], vec3(0.0,0.0,-1.0)), translate(positions[0][0],positions[0][1],0.0));
 var tempMat1  = mult(translate(coff1, 0.0, 0.0), tempMat);
@@ -218,8 +220,7 @@ var tempMat2  = mult(translate(-coff1, 0.0, 0.0), tempMat);
     modelViewMatrix = mult( outerwheelmat, modelViewMatrix);
     //    modelViewMatrix = mult( modelViewMatrix, outerwheelmat);
     gl.uniformMatrix4fv(modelViewMatrixLoc,false,flatten(modelViewMatrix));
-    gl.bindBuffer(gl.ARRAY_BUFFER, icBuffer);
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+    
 
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
@@ -253,6 +254,8 @@ var tempMat1  = mult(translate(coff1, 0.0, 0.0), tempMat);
     modelViewMatrix = mult( outerwheelmat, modelViewMatrix);
     //modelViewMatrix = mult( modelViewMatrix, outerwheelmat);
     gl.uniformMatrix4fv(modelViewMatrixLoc,false,flatten(modelViewMatrix));
+    gl.bindBuffer(gl.ARRAY_BUFFER, icBuffer);
+    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     //second cube
@@ -272,6 +275,8 @@ var    tempMat3  = mult(translate(0.0, coff1, 0.0), tempMat);
     //    modelViewMatrix = mult( modelViewMatrix, outerwheelmat);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc,false,flatten(modelViewMatrix));
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     //fourth cube
@@ -290,6 +295,8 @@ var tempMat1  = mult(translate(coff1, 0.0, 0.0), tempMat);
     modelViewMatrix = mult( outerwheelmat, modelViewMatrix);
     //modelViewMatrix = mult( modelViewMatrix, outerwheelmat);
     gl.uniformMatrix4fv(modelViewMatrixLoc,false,flatten(modelViewMatrix));
+    gl.bindBuffer(gl.ARRAY_BUFFER, icBuffer);
+    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     //second cube
@@ -309,6 +316,8 @@ var    tempMat3  = mult(translate(0.0, coff1, 0.0), tempMat);
     //    modelViewMatrix = mult( modelViewMatrix, outerwheelmat);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc,false,flatten(modelViewMatrix));
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     //fourth cube
