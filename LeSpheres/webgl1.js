@@ -138,7 +138,9 @@ window.onload = function init(){
 	// mvMatrix = mult(trans, mvMatrix);
 	render();
 }
-
+    var icoBuf;
+var icoColors;
+var icoColBuf;
 function initBuffers(){
 	
 	
@@ -150,7 +152,13 @@ function initBuffers(){
     ];
 	
 	divideTetra(vertices[0], vertices[1], vertices[2], vertices[3], 4);
-	
+	CreateIcosahedron();
+	icoBuf = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, icoBuf);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(icoVertices), gl.STATIC_DRAW);
+	icoColBuf = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, icoColBuf);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(icoColors), gl.STATIC_DRAW);
 	vertBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
@@ -179,7 +187,7 @@ function render(){
 	mvMatrix = mat4();
 	
 	//translate to origin
-	var trans = translate ( 0.0, 0.0, -3.0);
+	var trans = translate ( 0.0, 0.0, -10.0);
 	mvMatrix = mult(trans, mvMatrix);
 	
 	//rotate
@@ -190,10 +198,12 @@ function render(){
 	// var trans = translate ( 0.0, 0.0, -4.0);
 	// mvMatrix = mult(trans, mvMatrix);
 	
-	gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
+	//	gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
+	gl.bindBuffer(gl.ARRAY_BUFFER, icoBuf);
 	gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0,0);
 	
-	gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
+	//	gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
+	gl.bindBuffer(gl.ARRAY_BUFFER,icoColBuf);
 	gl.vertexAttribPointer(aVertexColor, 3, gl.FLOAT, false, 0,0);
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, normBuf);
@@ -203,7 +213,9 @@ function render(){
 	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(mvMatrix));
 	
 	gl.enable(gl.DEPTH_TEST);
-	gl.drawArrays(gl.TRIANGLES, 0, points.length);
+	//	gl.drawArrays(gl.TRIANGLES, 0, points.length);
+	
+	gl.drawArrays(gl.POINTS, 0, icoVertices.length);
 	
 	window.requestAnimFrame(render);
 }
@@ -260,4 +272,38 @@ function triangle(a,b,c,color)
 		colors.push(baseColors[color]);
 		points.push(c);
 }
+var icoVertices = [];
+function CreateIcosahedron()
+{
+    icoColors = [];
+    var t = (1.0 + Math.sqrt(3.0))/ 2.0;
+    icoVertices.push(vec3(-1, t, 0));
+    icoVertices.push(vec3(1, t, 0));
+     icoVertices.push(vec3(-1,-t, 0));
+ icoVertices.push(vec3(1, -t, 0));
 
+ icoVertices.push(vec3(0,-1, t));
+  icoVertices.push(vec3(0, 1, t));
+   icoVertices.push(vec3(0, -1, -t));
+    icoVertices.push(vec3(0, 1, -t));
+    
+
+    icoVertices.push(vec3(t,0,-1));
+    icoVertices.push(vec3(t,0,1));
+    icoVertices.push(vec3(-t,0,-1));
+    icoVertices.push(vec3(-t,0,1));
+
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(1.0, 0.0, 0.0));
+
+}
