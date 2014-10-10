@@ -369,17 +369,20 @@ function rotate( angle, axis )
 
 function scale( x, y, z )
 {
+    alert("scale");
+    var a,b,c;
     if ( Array.isArray(x) && x.length == 3 ) {
-        z = x[2];
-        y = x[1];
-        x = x[0];
+	alert("is array");
+        a = x[2];
+        b = x[1];
+        c = x[0];
     }
 
     var result = mat4();
-    result[0][0] = x;
-    result[1][1] = y;
-    result[2][2] = z;
-
+    result[0][0] = c;
+    result[1][1] = b;
+    result[2][2] = a;
+    alert(result);
     return result;
 }
 

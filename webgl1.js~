@@ -97,7 +97,7 @@ window.onload = function init(){
 		lastMouseX = event.clientX;
 		lastMouseY = event.clientY;
 	});
-	document.addEventListener("mousemove",function(){
+	document.addEventListener("mousemove",function(event){
 		if(mouseClicked){
 			var dx = event.clientX - lastMouseX;
 			var dy = event.clientY - lastMouseY;
@@ -112,7 +112,7 @@ window.onload = function init(){
 		}
 	});
 	
-	document.addEventListener("mouseup", function(){
+	document.addEventListener("mouseup", function(event){
 		mouseClicked = false;
 	});
 	gl = WebGLUtils.setupWebGL(canvas);

@@ -141,6 +141,39 @@ window.onload = function init(){
     var icoBuf;
 var icoColors;
 var icoColBuf;
+var indexBuf;
+
+var icoIndices = [
+		  0, 11, 5,
+		  0, 5, 1,
+		  0,1,7,
+		  0,7,10,
+		  0,10,11,
+		  
+		  1,5,9,
+		  5,11,4,
+		  11,10,2,
+		  10,7,6,
+		  7,1,8,
+
+		  3,9,4,
+		  3,4,2,
+		  3,2,6,
+		  3,6,8,
+		  3,8,9,
+
+		  4,9,5,
+		  2,4,11,
+		  6,2,10,
+		  8,6,7,
+		  9,8,1
+
+		  ];
+
+var numIcoVertices = 60; // 3 * 20
+var sphVertBuf;
+var sphColBuf;
+
 function initBuffers(){
 	
 	
@@ -152,13 +185,26 @@ function initBuffers(){
     ];
 	
 	divideTetra(vertices[0], vertices[1], vertices[2], vertices[3], 4);
+
+	//icosahedron
 	CreateIcosahedron();
+	
+	indexBuf = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuf);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(icoIndices), gl.STATIC_DRAW);
+
 	icoBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, icoBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(icoVertices), gl.STATIC_DRAW);
+	gl.enableVertexAttribArray(icoBuf);
+	gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0,0);
+
 	icoColBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, icoColBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(icoColors), gl.STATIC_DRAW);
+	gl.vertexAttribPointer(aVertexColor, 3, gl.FLOAT, false, 0,0);	
+
+
 	vertBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
@@ -170,6 +216,15 @@ function initBuffers(){
 	normBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, normBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(normals),  gl.STATIC_DRAW);
+
+	refineIcoSphere(5);
+	sphVertBuf = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, sphVertBuf);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(sphereVertices),  gl.STATIC_DRAW);
+
+	sphColBuf = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, sphColBuf);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(sphereColors),  gl.STATIC_DRAW);
 	
 }
 function render(){
@@ -185,37 +240,43 @@ function render(){
 	
 	//set mvMatrix to identity
 	mvMatrix = mat4();
-	
+	var x = [1.0,1.0,1.0];
+	var scal = scale2(1,0.5,1);
+	console.log(scal);
+	mvMatrix = mult( mvMatrix, scal);	
 	//translate to origin
-	var trans = translate ( 0.0, 0.0, -10.0);
+	var trans = translate ( 0.0, 0.0, -6.0);
 	mvMatrix = mult(trans, mvMatrix);
 	
 	//rotate
 	var rot = rotate(theta, vec3(0.0, 1.0, 0.0));
 	mvMatrix = mult (mvMatrix, rotMat);
-	
+
 	//translate back
 	// var trans = translate ( 0.0, 0.0, -4.0);
 	// mvMatrix = mult(trans, mvMatrix);
 	
 	//	gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
-	gl.bindBuffer(gl.ARRAY_BUFFER, icoBuf);
+	//	gl.bindBuffer(gl.ARRAY_BUFFER, icoBuf);
+	gl.bindBuffer(gl.ARRAY_BUFFER, sphVertBuf);
 	gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0,0);
 	
 	//	gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
-	gl.bindBuffer(gl.ARRAY_BUFFER,icoColBuf);
+	//	gl.bindBuffer(gl.ARRAY_BUFFER,icoColBuf);
+	gl.bindBuffer(gl.ARRAY_BUFFER, sphColBuf);
 	gl.vertexAttribPointer(aVertexColor, 3, gl.FLOAT, false, 0,0);
 	
-	gl.bindBuffer(gl.ARRAY_BUFFER, normBuf);
-	gl.vertexAttribPointer(aVertexNormal, 3, gl.FLOAT, false, 0,0);
+	//	gl.bindBuffer(gl.ARRAY_BUFFER, normBuf);
+	//	gl.vertexAttribPointer(aVertexNormal, 3, gl.FLOAT, false, 0,0);
 	
 	gl.uniformMatrix4fv(pMatrixUnif, false, flatten(pMatrix));
 	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(mvMatrix));
 	
 	gl.enable(gl.DEPTH_TEST);
 	//	gl.drawArrays(gl.TRIANGLES, 0, points.length);
-	
-	gl.drawArrays(gl.POINTS, 0, icoVertices.length);
+	//	gl.drawArrays(gl.POINTS, 0, icoVertices.length);
+	//	gl.drawElements(gl.TRIANGLES, icoIndices.length, gl.UNSIGNED_BYTE, 0);
+	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	
 	window.requestAnimFrame(render);
 }
@@ -273,6 +334,52 @@ function triangle(a,b,c,color)
 		points.push(c);
 }
 var icoVertices = [];
+var sphereVertices = [];
+var sphereIndices = [];
+var sphereColors = [];
+function refineIcoSphere(count)
+{
+    sphereVertices = [];
+    sphereColors = [];
+    
+    //take triangles of icosahedron
+    for(var i = 0; i < icoIndices.length; i+= 3)
+	{
+	    divideTriangle(icoVertices[icoIndices[i]], icoVertices[icoIndices[i+1]], icoVertices[icoIndices[i+2]], count);
+	}
+
+    //sub-divide each triangle recursively
+    console.log("Sphere vertices: " + sphereVertices.length + " " + sphereColors.length);
+    
+}
+function sphTriangle(a,b,c)
+{
+    //right now sphere vertices dont have indices - indices to be generated later
+    var col = vec3(Math.random(), Math.random(), Math.random());
+    sphereVertices.push(a);
+    sphereVertices.push(b);
+    sphereVertices.push(c);
+
+    sphereColors.push(col);    sphereColors.push(col);    sphereColors.push(col);
+    
+}
+function divideTriangle(a, b, c, count)
+{
+    if(count > 0){
+	var ab = normalize(mix(a, b, 0.5), false);
+	var ac = normalize(mix(a, c, 0.5), false);
+	var bc = normalize(mix(b, c, 0.5), false);
+
+	divideTriangle(a, ab, ac, count -1);
+	divideTriangle(ab, b, bc, count -1);
+	divideTriangle(bc, c, ac, count -1);
+	divideTriangle(ab, bc, ac, count-1);
+    }
+    else{
+	sphTriangle(a,b,c);
+    }
+
+}
 function CreateIcosahedron()
 {
     icoColors = [];
@@ -294,16 +401,21 @@ function CreateIcosahedron()
     icoVertices.push(vec3(-t,0,1));
 
     icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
-    icoColors.push(vec3(1.0, 0.0, 0.0));
+    icoColors.push(vec3(0.0, 1.0, 0.0));
+    icoColors.push(vec3(0.0, 0.0, 1.0));
+    icoColors.push(vec3(0.8, 0.0, 0.0));
+    icoColors.push(vec3(0.0, 0.8, 0.8));
+    icoColors.push(vec3(1.0, 1.0, 1.0));
+    icoColors.push(vec3(0.0, 0.0, 0.0));
+    icoColors.push(vec3(0.8, 0.8, 0.0));
+    icoColors.push(vec3(0.8, 0.0, 0.8));
+    icoColors.push(vec3(0.2, 0.8, 0.0));
+    icoColors.push(vec3(0.0, 0.2, 0.8));
+    icoColors.push(vec3(0.0, 0.8, 0.2));
+
+    for(var i = 0; i < icoVertices.length; i++)
+	{
+	    icoVertices[i] = normalize(icoVertices[i]);
+	}
 
 }
