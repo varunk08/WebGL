@@ -458,7 +458,7 @@ function ortho( left, right, bottom, top, near, far )
 
 //----------------------------------------------------------------------------
 
-function perspective( fovy, aspect, near, far )
+function perspective2( fovy, aspect, near, far )
 {
     var f = 1.0 / Math.tan( radians(fovy) / 2 );
     var d = far - near;
@@ -473,6 +473,23 @@ function perspective( fovy, aspect, near, far )
 
     return result;
 }
+
+function perspective( fovy, aspect, near, far )
+{
+    var f = 1.0 / Math.tan( radians(fovy) / 2 );
+    var d = far - near;
+
+    var result = mat4();
+    result[0][0] = f / aspect;
+    result[1][1] = f;
+    result[2][2] = -(near + far) / d;
+    result[2][3] = -2 * near * far / d;
+    result[3][2] = -1;
+    result[3][3] = 0.0;
+
+    return result;
+}
+
 
 //----------------------------------------------------------------------------
 //

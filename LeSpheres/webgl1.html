@@ -7,12 +7,16 @@
 <!--<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>-->
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
 <script type="text/javascript" src="../Common/MV.js"></script>
-<script type="text/javascript" src="../Common/Cube.js"></script>
+
+<script type="text/javascript" src="Cube.js"></script>
+<script type="text/javascript" src="plane.js"></script>
+<script type="text/javascript" src="sphere.js"></script>
 <script type="text/javascript" src="webgl1.js"></script>
 <script id="vs" type="x-shader/x-vertex">
+attribute vec3 aVertexNormal;
 attribute vec3 aVertexPosition;
 attribute vec3 aVertexColor;
-attribute vec3 aVertexNormal;
+
 
 varying vec4 color;
 uniform mat4 uMVMatrix;
@@ -40,7 +44,7 @@ void main(){
 </script>
 </head>
 <body>
-<canvas id="mycanvas" width="500" height="500"></canvas>
+<canvas id="mycanvas" width="512" height="512"></canvas>
 <button id="button1">Sample button</button>
 <textarea id="txtArea" width = "500" height="200"></textarea>
 </body>

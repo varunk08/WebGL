@@ -1,10 +1,11 @@
 var cubeVertexBufID;
 var cubeColorBufID;
+var cubeElemBufID;
 function Cube()
 {
 	
 }
-Cube.prototype.vertices = [
+var cubeVertices = [
         vec3( -0.5, -0.5,  0.5 ),
         vec3( -0.5,  0.5,  0.5 ),
         vec3(  0.5,  0.5,  0.5 ),
@@ -15,7 +16,7 @@ Cube.prototype.vertices = [
         vec3(  0.5, -0.5, -0.5 )
     ];
 
-Cube.prototype.vertexColors = [
+var cubeVertexColors = [
         vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
         vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
         vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
@@ -28,7 +29,7 @@ Cube.prototype.vertexColors = [
 
 // indices of the 12 triangles that comprise the cube
 
-Cube.prototype.indices = [
+var cubeIndices = [
     1, 0, 3,
     3, 2, 1,
     2, 3, 7,
@@ -42,13 +43,23 @@ Cube.prototype.indices = [
     5, 4, 0,
     0, 1, 5
 ];
-Cube.prototype.initBuffers = function(cubeBufId){
+Cube.prototype.initBuffers = function(){
+
+ cubeElemBufID = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeElemBufID);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(cubeIndices), gl.STATIC_DRAW);
 //color buffers
-var colBuf = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
-gl.bufferData(gl.ARRAY_BUFFER, flatten(colors),
+cubeColorBufID = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, cubeColorBufID);
+gl.bufferData(gl.ARRAY_BUFFER, flatten(cubeVertexColors),gl.STATIC_DRAW);
 //vertex buffers
+cubeVertexBufID = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBufID);
+gl.bufferData(gl.ARRAY_BUFFER, flatten(cubeVertices),gl.STATIC_DRAW);
+
+
 //attributes
+
 }
 
 Cube.prototype.drawCube = function()
