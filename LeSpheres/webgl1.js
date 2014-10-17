@@ -83,6 +83,9 @@ var dy;
 var eye = vec3(0.0, 0.0, -1.0);
 var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
+var  unif_ambientProduct, unif_diffuseProduct, unif_specularProduct; //lighting
+var  unif_lightPosition;
+var unif_shininess;
 window.onload = function init(){
 	 
 	//UI
@@ -141,10 +144,24 @@ window.onload = function init(){
 	gl.enableVertexAttribArray(aVertexNormal);
 	
 	var maxVSattribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-	console.log("Max attribs: " + maxVSattribs);
+	
 	fTheta = gl.getUniformLocation(program1, "theta");
 	pMatrixUnif = gl.getUniformLocation(program1, "uPMatrix");
 	mvMatrixUnif = gl.getUniformLocation(program1, "uMVMatrix");
+	
+	unif_ambientProduct = gl.getUniformLocation(program1, "ambientProduct");
+	unif_diffuseProduct = gl.getUniformLocation(program1, "diffuseProduct");
+	unif_specularProduct = gl.getUniformLocation(program1, "specularProduct");
+    unif_lightPosition = gl.getUniformLocation(program1, "lightPosition");;
+    unif_shininess = gl.getUniformLocation(program1, "shininess");
+	//need light.js
+	initLighting();
+	gl.uniform4fv( unif_ambientProduct,flatten(ambientProduct) );
+    gl.uniform4fv( unif_diffuseProduct,flatten(diffuseProduct) );
+    gl.uniform4fv( unif_specularProduct,flatten(specularProduct) );	
+    gl.uniform4fv( unif_lightPosition,flatten(lightPosition) );
+    gl.uniform1f( unif_shininess,materialShininess );
+
 	render();
 }
 var cube;
