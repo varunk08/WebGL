@@ -139,13 +139,16 @@ window.onload = function init(){
 	
 	aVertexNormal = gl.getAttribLocation(program1, "aVertexNormal");
 	gl.enableVertexAttribArray(aVertexNormal);
-	console.log(aVertexPosition + " " + aVertexNormal);
+	
+	var maxVSattribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+	console.log("Max attribs: " + maxVSattribs);
 	fTheta = gl.getUniformLocation(program1, "theta");
 	pMatrixUnif = gl.getUniformLocation(program1, "uPMatrix");
 	mvMatrixUnif = gl.getUniformLocation(program1, "uMVMatrix");
 	render();
 }
 var cube;
+var sphNormalBuf;
 function initBuffers(){
 	//cube = new Cube();
 	//cube
@@ -163,6 +166,9 @@ function initBuffers(){
 	gl.bindBuffer(gl.ARRAY_BUFFER, sphColBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(sphereColors),  gl.STATIC_DRAW);
 	
+	sphNormalBuf = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, sphNormalBuf);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(sphereNormals),  gl.STATIC_DRAW);
 }
 function render(){
 	gl.clearColor(0.8,0.8,0.8, 1.0);
@@ -204,6 +210,9 @@ function render(){
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, sphColBuf);
 	gl.vertexAttribPointer(aVertexColor, 3, gl.FLOAT, false, 0,0);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, sphNormalBuf);
+	gl.vertexAttribPointer(aVertexNormal, 3, gl.FLOAT, false, 0,0);
 	
 	//sphere 1 - TORSO
 	mStack.push(mvMatrix); //Save default mv matrix

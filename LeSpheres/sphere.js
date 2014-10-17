@@ -2,7 +2,7 @@ var icoVertices = [];
 var sphereVertices = [];
 var sphereIndices = [];
 var sphereColors = [];
-
+var sphereNormals = [];
 var icoBuf;
 var icoColors;
 var icoColBuf;
@@ -101,11 +101,20 @@ function sphTriangle(a,b,c)
 {
     //right now sphere vertices dont have indices - indices to be generated later
     var col = vec3(Math.random(), Math.random(), Math.random());
-    sphereVertices.push(a);
+    //vertices
+	sphereVertices.push(a); 
     sphereVertices.push(b);
     sphereVertices.push(c);
-
-    sphereColors.push(col);    sphereColors.push(col);    sphereColors.push(col);
+	
+	//normals - unit sphere 
+	sphereNormals.push(a);
+	sphereNormals.push(b);
+	sphereNormals.push(c);
+	
+	//colors
+    sphereColors.push(col);
+    sphereColors.push(col);
+    sphereColors.push(col);
     
 }
 
