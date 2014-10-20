@@ -31,10 +31,10 @@ uniform float theta;
 //varying
 varying vec4 color;
 void main(void){
-	vec3 pos = (uMVMatrix * vec4(aVertexPosition,1.0)).xyz;
-	vec3 light = lightPosition.xyz;
-    vec3 L = normalize( light - pos );
-	vec3 E = normalize( -pos );
+	vec3 cspos = (viewMatrix * uMVMatrix * vec4(aVertexPosition,1.0)).xyz;
+	vec3 cslight = (viewMatrix * lightPosition).xyz;
+    vec3 L = normalize( cslight - cspos );
+	vec3 E = normalize( -cspos );
     vec3 H = normalize( L + E );
 	//vec3 N = normalize( (uMVMatrix * vec4(aVertexNormal,0.0)).xyz);
 	vec3 N = normalize ( uNMatrix * vec4(aVertexNormal, 0.0)).xyz;
