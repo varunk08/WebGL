@@ -57,7 +57,7 @@ void main(void){
 	//final position and color updates
 	gl_Position = uPMatrix * viewMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);;
 	//color = vec4(aVertexColor, 1.0);
-	color = diffuse + specular;
+	color = ambient + diffuse + specular;
 	//color = vec4(N,1.0);
 	color.a = 1.0;
 }
