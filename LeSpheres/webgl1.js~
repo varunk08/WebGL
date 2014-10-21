@@ -294,8 +294,8 @@ function render(){
 	//scale
 	var itrans1 = translate(1.0, 0.0, 0.0);
 	var insmvMatrix = mult(mvMatrix, itrans1);
-	var scal = scale2(2,2,2);
-	insmvMatrix = mult( insmvMatrix, scal);	
+	var scal = scale2(2,1,1);
+	//insmvMatrix = mult( insmvMatrix, scal);	
 	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix));
 
 	normMat = transpose(mat4(inverse(insmvMatrix)));

@@ -114,7 +114,7 @@ sphereNormals.push(normal);
 	//normals - unit sphere 
 	sphereNormals.push(normalize(a));
 	sphereNormals.push(normalize(b));
-	sphereNormals.push(normalize(c));
+	sphereNormals.push(c);
 	
 	//colors
     sphereColors.push(col);
