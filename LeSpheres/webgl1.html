@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>
-	My webgl 1
+	Assign 3 Lighting
 </title>
 <!--<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>-->
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
@@ -35,11 +35,11 @@ void main(void){
 //Lighting calculations
 	vec3 cspos = (viewMatrix * uMVMatrix * vec4(aVertexPosition,1.0)).xyz;
 	vec3 cslight = (viewMatrix * lightPosition).xyz;
-	vec3 L = normalize( cslight - cspos );
+	vec3 L = normalize( cslight );
 	vec3 E = normalize( -cspos );
 	vec3 H = normalize( L + E );
-	vec3 N = normalize( (viewMatrix * uMVMatrix * vec4(aVertexNormal,0.0)).xyz); //problem with normal matrix calculations
-	//vec3 N = normalize ( uNMatrix * vec4(aVertexNormal, 0.0)).xyz;
+	//vec3 N = normalize( (viewMatrix * uMVMatrix * vec4(aVertexNormal,0.0)).xyz); //problem with normal matrix calculations
+	vec3 N = normalize ( (uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
 
 	//ambient 
 	vec4 ambient = ambientProduct;

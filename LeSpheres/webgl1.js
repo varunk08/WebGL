@@ -171,8 +171,24 @@ window.onload = function init(){
 	mvMatrix = mat4();
 	pMatrix = mat4();
 	
-	
-	
+	/*
+	//Test inverse function
+	var test = mat4(4,	2,	13,	10,	 
+3	,9	,7,	5,
+6	,8	,12,	14,
+11	,15,	16,	17);
+	console.log(flatten(transpose(inverse(test))));
+	console.log(flatten((normalFromMat4(test))));
+
+	*/
+	/*
+0.0496	-0.2557	-0.3473	0.3321	 
+-0.0789	0.1501	0.0522	-0.0407
+0.1628	0.1094	-0.1399	-0.0127
+-0.1158	-0.07	0.3104	-0.1081
+	*/
+
+
 	aVertexPosition = gl.getAttribLocation(program1, "aVertexPosition");
 	gl.enableVertexAttribArray(aVertexPosition);
 	
@@ -231,7 +247,7 @@ function render(){
 	gl.clearColor(0.8,0.8,0.8, 1.0);
 	gl.viewport(0,0,canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	  gl.uniform4fv( unif_lightPosition,flatten(lightPosition) );
+	gl.uniform4fv( unif_lightPosition,flatten(lightPosition) );
 	//View matrix
 	eye = vec3(radius*Math.sin(theta)*Math.cos(phi), radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
 	var viewMatrix = lookAt(eye, at, up);
@@ -278,27 +294,29 @@ function render(){
 	mvMatrix = mult(mvMatrix, ltrans);
 	mvMatrix = mult(mvMatrix, scale2(0.25,0.25,0.25));
 	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(mvMatrix));
-	normMat = transpose(mat4(inverse(mvMatrix)));
+	normMat = transpose((inverse(mvMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	mvMatrix = mStack.pop();
+
+
+
+
 	//-------------------------- TORSO ----------------------------------------
 	mStack.push(mvMatrix); //Save default mv matrix
 	//translate to origin
 	//var trans = translate ( 0.0, 0.0, -10.0);
 	//mvMatrix = mult(mvMatrix, trans );
 	
-	//rotate - mouse interaction
-	//mvMatrix = mult (mvMatrix, rotMat);
 	
 	//scale
 	var itrans1 = translate(1.0, 0.0, 0.0);
-	var insmvMatrix = mult(mvMatrix, itrans1);
-	var scal = scale2(2,2,2);
-	insmvMatrix = mult( insmvMatrix, scal);	
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix));
+	var instanceMatrix = mult(mvMatrix, itrans1);
+	var scal = scale2(2,0.75,0.5);
+	instanceMatrix = mult( instanceMatrix, scal);	
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
 
-	normMat = transpose(mat4(inverse(insmvMatrix)));
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
@@ -311,14 +329,15 @@ function render(){
 	mvMatrix = mult (mvMatrix, rotate(-90, vec3(0,0,1)));
 	
 	//scale
-	var insmvMatrix2 = mult(mvMatrix, translate (1,0,0));
-	insmvMatrix2 = mult( insmvMatrix2, scale2(1,0.25,0.25));
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix2));
-	normMat = transpose(mat4(inverse(insmvMatrix2)));
+	var instanceMatrix = mult(mvMatrix, translate (1,0,0));
+	instanceMatrix = mult( instanceMatrix, scale2(1,0.25,0.25));
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+	
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	
-	//sphere 3 - child of sphere 2 - lower hind leg right
+	//-------------------------- LEG hind-right-lower -------------------------------------
 	mStack.push(mvMatrix);
 	//translate
 	var trans = translate(1.0, 0.0, 0.0);
@@ -328,36 +347,38 @@ function render(){
 	
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
-	var scal3 = scale2(0.5,0.25,0.25);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	var instanceMatrix = mult(mvMatrix, itrans2);
+	var scal3 = scale2(1.0,0.25,0.25);
+	instanceMatrix = mult( instanceMatrix, scal3);
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	
 	mvMatrix = mStack.pop();
 	mvMatrix = mStack.pop();
-	//sphere 2 - child of sphere 1 - upper hind leg left
+	//-------------------------- LEG hind-upper hind leg left -------------------------------------
 	mStack.push(mvMatrix);
 	//rotate by 90
 	//translate
-	var trans = translate(0.0, -0.0, -0.5);
+	var trans = translate(0.0, 0.0, -0.5);
 	mvMatrix = mult(mvMatrix, trans);
 	var rot90 = rotate(-90, vec3(0,0,1));
 	mvMatrix = mult (mvMatrix, rot90);
 	
 	//scale
 	var itrans = translate (1,0,0);
-	var insmvMatrix2 = mult(mvMatrix, itrans);
+	var instanceMatrix = mult(mvMatrix, itrans);
 	var scal2 = scale2(1,0.25,0.25);
-	insmvMatrix2 = mult( insmvMatrix2, scal2);
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix2));
-	normMat = transpose(mat4(inverse(insmvMatrix2)));
+	instanceMatrix = mult( instanceMatrix, scal2);
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+	
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	
-	//sphere 3 - child of sphere 2 - lower hind leg left
+	//-------------------------- LEG hind-lower hind leg left -------------------------------------
 	mStack.push(mvMatrix);
 	//translate
 	var trans = translate(1.0, 0.0, 0.0);
@@ -367,37 +388,38 @@ function render(){
 	
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
-	var scal3 = scale2(0.5,0.25,0.25);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	var instanceMatrix = mult(mvMatrix, itrans2);
+	var scal3 = scale2(1,0.25,0.25);
+	instanceMatrix = mult( instanceMatrix, scal3);
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	
-	mvMatrix = mStack.pop();
-	mvMatrix = mStack.pop();
+	mvMatrix = mStack.pop(); //lower
+	mvMatrix = mStack.pop(); //upper
 	
-	//FRONT LEGS - child of sphere 1 - upper front leg right
+	//-------------------------- //FRONT LEGS - upper front leg right-------------------------------------
 	mStack.push(mvMatrix);
 	//rotate by 90
 	//translate
-	var trans = translate(2.0, -0.0, 0.5);
+	var trans = translate(2.0, 0.0, 0.5);
 	mvMatrix = mult(mvMatrix, trans);
 	var rot90 = rotate(-90, vec3(0,0,1));
 	mvMatrix = mult (mvMatrix, rot90);
 	
 	//scale
 	var itrans = translate (1,0,0);
-	var insmvMatrix2 = mult(mvMatrix, itrans);
+	var instanceMatrix = mult(mvMatrix, itrans);
 	var scal2 = scale2(1,0.25,0.25);
-	insmvMatrix2 = mult( insmvMatrix2, scal2);
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix2));
-	normMat = transpose(mat4(inverse(insmvMatrix2)));
+	instanceMatrix = mult( instanceMatrix, scal2);
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
-	
-	//sphere 3 - child of sphere 2 - lower front leg right
+	//-------------------------- //FRONT LEGS - lower front leg right-------------------------------------
 	mStack.push(mvMatrix);
 	//translate
 	var trans = translate(1.0, 0.0, 0.0);
@@ -407,18 +429,18 @@ function render(){
 	
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
-	var scal3 = scale2(0.5,0.25,0.25);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	var instanceMatrix = mult(mvMatrix, itrans2);
+	var scal3 = scale2(1,0.25,0.25);
+	instanceMatrix = mult( instanceMatrix, scal3);
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	
 	mvMatrix = mStack.pop();
 	mvMatrix = mStack.pop();
-	
-	//FRONT LEGS - child of sphere 1 - upper front leg left
+	//-------------------------- //FRONT LEGS - upper front leg left-------------------------------------
 	mStack.push(mvMatrix);
 	//rotate by 90
 	//translate
@@ -429,16 +451,15 @@ function render(){
 	
 	//scale
 	var itrans = translate (1,0,0);
-	var insmvMatrix2 = mult(mvMatrix, itrans);
+	var instanceMatrix = mult(mvMatrix, itrans);
 	var scal2 = scale2(1,0.25,0.25);
-	insmvMatrix2 = mult( insmvMatrix2, scal2);
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix2));
+	instanceMatrix = mult( instanceMatrix, scal2);
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
 
-	normMat = transpose(mat4(inverse(insmvMatrix2)));
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
-	
-	//sphere 3 - child of sphere 2 - lower front leg left
+	//-------------------------- //FRONT LEGS - lower front leg left-------------------------------------
 	mStack.push(mvMatrix);
 	//translate
 	var trans = translate(1.0, 0.0, 0.0);
@@ -448,20 +469,19 @@ function render(){
 	
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
-	var scal3 = scale2(0.5,0.25,0.25);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
+	var instanceMatrix = mult(mvMatrix, itrans2);
+	var scal3 = scale2(1,0.25,0.25);
+	instanceMatrix = mult( instanceMatrix, scal3);
 	
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
 
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	
 	mvMatrix = mStack.pop();
 	mvMatrix = mStack.pop();
-	
-	//TAIL
+	//-------------------------- //TAIL-------------------------------------
 	mStack.push(mvMatrix);
 	//translate
 	mvMatrix = mult(mvMatrix, translate(-0.5, 0.0, 0.0));
@@ -470,64 +490,67 @@ function render(){
 	
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
+	var instanceMatrix = mult(mvMatrix, itrans2);
 	var scal3 = scale2(0.75,0.25,0.25);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
+	instanceMatrix = mult( instanceMatrix, scal3);
 	
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+	
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	mvMatrix = mStack.pop();
-	//HEAD
+	//-------------------------- HEAD-------------------------------------
+	
 	mStack.push(mvMatrix);
 	//translate
 	mvMatrix = mult(mvMatrix, translate(1.75, 0.5, 0.0));
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
+	var instanceMatrix = mult(mvMatrix, itrans2);
 	var scal3 = scale2(0.75,0.75,0.75);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
+	instanceMatrix = mult( instanceMatrix, scal3);
 	
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+	
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
+	//-------------------------- //HEAD_SNOUT_-------------------------------------
 	
-	//HEAD_SNOUT_
 	mStack.push(mvMatrix);
 	//translate
 	mvMatrix = mult(mvMatrix, translate(0.5, 0.0, 0.0));
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
+	var instanceMatrix = mult(mvMatrix, itrans2);
 	var scal3 = scale2(0.7,0.5,0.5);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
+	instanceMatrix = mult( instanceMatrix, scal3);
 	
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+	
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
+	//-------------------------- //HEAD_SNOUT_NOSE -------------------------------------
 	
-	//HEAD_SNOUT_NOSE
 	mStack.push(mvMatrix);
 	//translate
 	mvMatrix = mult(mvMatrix, translate(0.65, 0.35, 0.0));
 	//scale
 	var itrans2 = translate (1,0,0);
-	var insmvMatrix3 = mult(mvMatrix, itrans2);
+	var instanceMatrix = mult(mvMatrix, itrans2);
 	var scal3 = scale2(0.2,0.2,0.2);
-	insmvMatrix3 = mult( insmvMatrix3, scal3);
+	instanceMatrix = mult( instanceMatrix, scal3);
 	
-	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(insmvMatrix3));
-	normMat = transpose(mat4(inverse(insmvMatrix3)));
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(instanceMatrix));
+	normMat = transpose(inverse(mult(viewMatrix,instanceMatrix)));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
+
 	mvMatrix = mStack.pop(); //nose
 	mvMatrix = mStack.pop(); // snout
 	mvMatrix = mStack.pop(); // head
-	
-	
 	mvMatrix = mStack.pop(); // torso
 	
 	
