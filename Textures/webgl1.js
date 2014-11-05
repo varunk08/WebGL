@@ -59,7 +59,7 @@ function initShaders( gl, vertexShaderId, fragmentShaderId )
 var gl;
 var canvas;
 var program1;
-
+var program_texonly;
 var aVertexPosition;
 var aVertexColor;
 var aVertexNormal;
@@ -67,7 +67,6 @@ var aTexCoord;
 
 var vertBuf;
 var colBuf;
-var theta = 0.0;
 var fTheta;
 var pMatrixUnif;
 var mvMatrixUnif;
@@ -93,8 +92,8 @@ var  unif_ambientProduct, unif_diffuseProduct, unif_specularProduct; //lighting
 var  unif_lightPosition;
 var unif_shininess;
 var radius = 10;
-var theta  = 0.0;
-var phi    = 0.0;
+var theta  = 1.0;
+var phi    = 2.0;
 var dr = 2.0 * Math.PI/180.0;
 var plane;
 
@@ -169,12 +168,8 @@ window.onload = function init(){
 	if ( !gl ) { alert( "WebGL isn't available" ); }
 	gl.enable(gl.DEPTH_TEST);
 	program1 = initShaders(gl, "vs", "fs");
-	gl.useProgram(program1);
-	plane = new Plane();
-
-	initBuffers();
-	mvMatrix = mat4();
-	pMatrix = mat4();
+	program_texonly = initShaders(gl, "vs_tex", "fs_tex");
+	
 	
 	/*
 	//Test inverse function
@@ -193,7 +188,7 @@ window.onload = function init(){
 -0.1158	-0.07	0.3104	-0.1081
 	*/
 
-
+	gl.useProgram(program1);
 	aVertexPosition = gl.getAttribLocation(program1, "aVertexPosition");
 	gl.enableVertexAttribArray(aVertexPosition);
 	
@@ -202,11 +197,6 @@ window.onload = function init(){
 	
 	aVertexNormal = gl.getAttribLocation(program1, "aVertexNormal");
 	gl.enableVertexAttribArray(aVertexNormal);
-	
-	//aTexCoord = gl.getAttribLocation(program1, "aTexCoord");
-	//gl.enableVertexAttribArray(aTexCoord);
-
-	var maxVSattribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
 	
 	fTheta = gl.getUniformLocation(program1, "theta");
 	pMatrixUnif = gl.getUniformLocation(program1, "uPMatrix");
@@ -220,27 +210,36 @@ window.onload = function init(){
     viewMatrixUnif = gl.getUniformLocation(program1, "viewMatrix");
 	useLightingUnif = gl.getUniformLocation(program1, "useLighting");
 	
-
 	//need light.js
 	initLighting();
-
 	//init material params
 	gl.uniform4fv( unif_ambientProduct,flatten(ambientProduct) );
     gl.uniform4fv( unif_diffuseProduct,flatten(diffuseProduct) );
     gl.uniform4fv( unif_specularProduct,flatten(specularProduct) );	
     gl.uniform1f( unif_shininess,materialShininess );
+    initSphBuffers();
+	mvMatrix = mat4();
+	pMatrix = mat4();
+	//Perspective matrix
+	pMatrix = perspective(80.0, canvas.width / canvas.height, 0.1, 100.0);
+	gl.uniformMatrix4fv(pMatrixUnif, false, flatten(pMatrix));
+
+	
+	plane = new Plane();
+	//init plane buffers
+    plane.genBuffers(program_texonly);
+    plane.genTextures(document.getElementById("texImage"));
 
 	render();
 }
+
 var cube;
 var sphNormalBuf;
-function initBuffers(){
+function initSphBuffers(){
 	//cube = new Cube();
 	//cube
 	//cube.initBuffers();
-	
-	//init plane buffers
-    plane.genBuffers(aVertexPosition, aVertexColor, aVertexNormal);
+
 
 	//sphere creation through icosahedron
 	CreateSphere(4);
@@ -263,21 +262,22 @@ function render(){
 	gl.clearColor(0.8,0.8,0.8, 1.0);
 	gl.viewport(0,0,canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	
+	gl.useProgram(program1);
 	gl.uniform4fv( unif_lightPosition,flatten(lightPosition) );
 	//View matrix
 	eye = vec3(radius*Math.sin(theta)*Math.cos(phi), radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
 	var viewMatrix = lookAt(eye, at, up);
 	gl.uniformMatrix4fv(viewMatrixUnif, false, flatten(viewMatrix));
-
-	//Perspective matrix
-	pMatrix = perspective(80.0, canvas.width / canvas.height, 0.1, 100.0);
-	gl.uniformMatrix4fv(pMatrixUnif, false, flatten(pMatrix)); 
-	gl.uniform1i(useLightingUnif, false);
-	plane.drawPlane();
+	 
+	
+	gl.uniform1i(useLightingUnif, true);
+	
 	
 	//set mvMatrix to identity
 	mvMatrix = mat4();
 	var normMat = mat4();
+	mStack = [];
 	//------------------------ test cube -------------------------------------
 	/*gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBufID);
 	gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0,0);
@@ -292,9 +292,22 @@ function render(){
 	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(mvMatrix));
 	gl.drawElements( gl.TRIANGLES, 12 * 3, gl.UNSIGNED_BYTE, 0 );*/
 	//------------------------------------------------------------------------
-	mStack = [];
 	
 	
+	//---------------//DRAWE PLANE-----------------------------------------------
+	gl.useProgram(program_texonly);
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"viewMatrix"), false, flatten(viewMatrix));
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"uPMatrix"), false, flatten(pMatrix));
+	mStack.push(mvMatrix);
+	mvMatrix = mult(mvMatrix, scale2(20,20,20));
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly, "uMVMatrix"), false, flatten(mvMatrix));
+	normMat = transpose((inverse(mvMatrix)));
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"uNMatrix"), false, flatten(normMat));
+	plane.drawPlane();	
+	mvMatrix = mStack.pop();
+	gl.useProgram(program1);
+	//------------------------------------------------------------------------
+
 	// Sphere buffers
 	gl.bindBuffer(gl.ARRAY_BUFFER, sphVertBuf);
 	gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0,0);
@@ -321,8 +334,7 @@ function render(){
 	//-------------------------- TORSO ----------------------------------------
 	mStack.push(mvMatrix); //Save default mv matrix
 	//translate to origin
-	//var trans = translate ( 0.0, 0.0, -10.0);
-	//mvMatrix = mult(mvMatrix, trans );
+	mvMatrix = mult(mvMatrix, translate ( 0.0, 2.7, 0.0) );
 	
 	
 	//scale

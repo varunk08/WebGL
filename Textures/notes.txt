@@ -1,4 +1,6 @@
 Texturing:
+Chrome does not support loading of textures due to cross site security issue.
+Firefox supports
 Polys needed: 
 -plane
 -tetrahedron

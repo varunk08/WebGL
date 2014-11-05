@@ -64,15 +64,14 @@ function CreateIcosahedron()
     var t = (1.0 + Math.sqrt(3.0))/ 2.0;
     icoVertices.push(vec3(-1, t, 0));
     icoVertices.push(vec3(1, t, 0));
-     icoVertices.push(vec3(-1,-t, 0));
- icoVertices.push(vec3(1, -t, 0));
+    icoVertices.push(vec3(-1,-t, 0));
+ 	icoVertices.push(vec3(1, -t, 0));
 
- icoVertices.push(vec3(0,-1, t));
-  icoVertices.push(vec3(0, 1, t));
-   icoVertices.push(vec3(0, -1, -t));
+ 	icoVertices.push(vec3(0,-1, t));
+  	icoVertices.push(vec3(0, 1, t));
+   	icoVertices.push(vec3(0, -1, -t));
     icoVertices.push(vec3(0, 1, -t));
     
-
     icoVertices.push(vec3(t,0,-1));
     icoVertices.push(vec3(t,0,1));
     icoVertices.push(vec3(-t,0,-1));
@@ -101,16 +100,20 @@ function sphTriangle(a,b,c)
 {
     //right now sphere vertices dont have indices - indices to be generated later
     var col = vec3(0.7, 0.2, 0.2);//vec3(Math.random(), Math.random(), Math.random());
+    
     //vertices
 	sphereVertices.push(a); 
     sphereVertices.push(b);
     sphereVertices.push(c);
+	
 	/*var t1 = subtract(b, a);
      var t2 = subtract(c, a);
      var normal = normalize(cross(t1, t2));
 sphereNormals.push(normal);
 	sphereNormals.push(normal);
 	sphereNormals.push(normal);*/
+
+
 	//normals - unit sphere 
 	sphereNormals.push(normalize(a));
 	sphereNormals.push(normalize(b));

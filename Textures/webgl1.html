@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>
-	Assign 3 Lighting
+	Assign 4 Texture Mapping
 </title>
 <!--<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>-->
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
@@ -61,7 +61,7 @@ void main(void){
 		color = ambient + diffuse + specular;
 	}
 	else{
-		color = vec4(aVertexColor,1.0);// + vec4(aTexCoord,0.0,1.0);
+		color = vec4(aVertexColor,1.0) ;//+ vec4(aTexCoord,0.0,1.0);
 	}
 	//color = vec4(N,1.0);
 	color.a = 1.0;
@@ -77,10 +77,75 @@ void main(){
 	gl_FragColor = color;
 }
 </script>
+<script id="vs_tex" type="x-shader/x-vertex">
+//VERTEX SHADER
+//attributes
+attribute vec3 aVertexPosition;
+attribute vec3 aVertexColor;
+attribute vec3 aVertexNormal;
+attribute vec2 aTexCoord;
+//uniforms
+/*uniform bool useLighting;
+uniform vec4 ambientProduct, diffuseProduct, specularProduct; //lighting
+uniform vec4 lightPosition;
+uniform float shininess; */
+uniform mat4 uMVMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 uPMatrix;
+uniform mat4 uNMatrix;
+
+//varying
+varying vec2 fTexCoord;
+varying vec4 color;
+void main(void){
+
+//Lighting calculations
+	/*vec3 cspos = (viewMatrix * uMVMatrix * vec4(aVertexPosition,1.0)).xyz;
+	vec3 cslight = (viewMatrix * lightPosition).xyz;
+	vec3 L = normalize( cslight - cspos);
+	vec3 E = normalize( -cspos );
+	vec3 H = normalize( L + E );
+	vec3 N = normalize ( (uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
+
+	//ambient 
+	vec4 ambient = ambientProduct;
+	//diffuse
+	float Kd = max( dot(N,L), 0.0 );
+	vec4  diffuse = Kd*diffuseProduct;
+	//specular
+	float Ks = pow( max(dot(N, H), 0.0), shininess );
+    	vec4  specular = Ks * specularProduct;
+        if( dot(L, N) < 0.0 ) {
+		specular = vec4(0.0, 0.0, 0.0, 1.0);
+	} 
+*/
+vec3 N = normalize ( (uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
+	//final position and color updates
+	gl_Position = uPMatrix * viewMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);;
+
+	color = vec4(aVertexColor,1.0) + vec4(0.0,aTexCoord,1.0);
+	
+	//color = vec4(N,1.0);
+	color.a = 1.0;
+	fTexCoord = aTexCoord;
+}
+</script>
+<script id="fs_tex" type="x-shader/x-fragment">
+//FRAGMENT SHADER
+precision mediump float;
+varying vec2 fTexCoord;
+uniform sampler2D texture;
+varying vec4 color;
+void main(){
+	//gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+	gl_FragColor =  texture2D(texture, fTexCoord);
+}
+</script>
 </head>
 <body>
 <canvas id="mycanvas" width="512" height="512"></canvas>
 <button id="button1">Sample button</button>
 <textarea id="txtArea" width = "500" height="200"></textarea>
+<img id = "texImage" src = "sigimage.gif" hidden></img>
 </body>
 </html>
