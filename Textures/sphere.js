@@ -100,7 +100,7 @@ function CreateIcosahedron()
 function sphTriangle(a,b,c)
 {
     //right now sphere vertices dont have indices - indices to be generated later
-    var col = vec3(Math.random(), Math.random(), Math.random());
+    var col = vec3(0.7, 0.2, 0.2);//vec3(Math.random(), Math.random(), Math.random());
     //vertices
 	sphereVertices.push(a); 
     sphereVertices.push(b);

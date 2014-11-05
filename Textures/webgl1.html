@@ -19,7 +19,9 @@
 attribute vec3 aVertexNormal;
 attribute vec3 aVertexPosition;
 attribute vec3 aVertexColor;
+//attribute vec2 aTexCoord;
 //uniforms
+uniform bool useLighting;
 uniform vec4 ambientProduct, diffuseProduct, specularProduct; //lighting
 uniform vec4 lightPosition;
 uniform float shininess;
@@ -55,8 +57,12 @@ void main(void){
 
 	//final position and color updates
 	gl_Position = uPMatrix * viewMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);;
-	//color = vec4(aVertexColor, 1.0);
-	color = ambient + diffuse + specular;
+	if (useLighting){
+		color = ambient + diffuse + specular;
+	}
+	else{
+		color = vec4(aVertexColor,1.0);// + vec4(aTexCoord,0.0,1.0);
+	}
 	//color = vec4(N,1.0);
 	color.a = 1.0;
 }
