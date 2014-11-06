@@ -113,7 +113,7 @@ Plane.prototype.genTextures = function(image)
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
     
-   this.textureLoc = gl.getUniformLocation(this.shaderProgram, "texture");
+    gl.uniform1i(gl.getUniformLocation(this.shaderProgram, "texture"), 0);
 }
 
 Plane.prototype.drawPlane = function()
@@ -131,9 +131,6 @@ Plane.prototype.drawPlane = function()
 	gl.vertexAttribPointer(this.texAttrLoc, 2, gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.planeIndexBuf);
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	gl.uniform1i(this.textureLoc, 0);
 	gl.drawElements(gl.TRIANGLES, /*num vertices*/ 6, gl.UNSIGNED_BYTE, 0 );
 
 }

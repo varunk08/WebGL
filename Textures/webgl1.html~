@@ -222,15 +222,15 @@ void main(){
 	vec4 outColor = vec4(0.0,0.0,0.0,1.0);
 	if(fFaceIndex == 0.0)
 	{
-		outColor =  texture2D(texture1, fTexCoord);
+		outColor =  vec4(1.0,0.0,0.0,1.0);//texture2D(texture1, fTexCoord);
 	}
 	else if(fFaceIndex == 1.0)
 	{
-		outColor =  texture2D(texture2, fTexCoord);
+		outColor =  vec4(0.0,1.0,0.0,1.0);//texture2D(texture2, fTexCoord);
 	}
 	else if(fFaceIndex == 2.0)
 	{
-		outColor =  texture2D(texture3, fTexCoord);
+		outColor =  vec4(0.0,0.0,1.0,1.0);//texture2D(texture3, fTexCoord);
 	}
 	else if(fFaceIndex == 3.0)
 	{

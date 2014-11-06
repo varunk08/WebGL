@@ -227,7 +227,7 @@ window.onload = function init(){
 	//init plane buffers
     	plane.genBuffers(program_texonly);
     	plane.genTextures(document.getElementById("texImage"));
-	console.log("Max texture units supported: " + gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
+	console.log("Max texture units supported: " gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
 	tetra = new Tetra();
 	tetra.genBuffers(program_tetra);
 	tetra.genTextures(document.getElementById("tetImage1"),document.getElementById("tetImage2"),document.getElementById("tetImage3"),document.getElementById("tetImage4"));

@@ -1,4 +1,11 @@
 Texturing:
+To-do:
+-. Tetrahedron with face index attributes
+-. Tetra with textures
+-. Texture for floor (black and white checks)
+-. Texture coords for sphere
+-. Spotlight
+
 Chrome does not support loading of textures due to cross site security issue.
 Firefox supports
 Polys needed: 

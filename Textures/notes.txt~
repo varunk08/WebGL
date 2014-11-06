@@ -1,4 +1,14 @@
+Texturing:
+Chrome does not support loading of textures due to cross site security issue.
+Firefox supports
+Polys needed: 
+-plane
+-tetrahedron
+
 The animated animal hierarchy
+Normal matrix calculation not correct. Hence problems faced previously.
+Everything is in eye/cam space. Light direction included.
+
 
 mat4 mvm
 stack mstack
