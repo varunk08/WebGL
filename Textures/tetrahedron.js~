@@ -20,16 +20,16 @@ var Tetra = function()
 
 Tetra.prototype.tetrahedron = function(a, b, c, d)
 {
-	this.createTriangle(a, b, c, 0);
-    	this.createTriangle(d, c, b, 1);
-    	this.createTriangle(a, d, b, 2);
-    	this.createTriangle(a, c, d, 3);
+	this.createTriangle(a, b, c, 0.0);
+    	this.createTriangle(d, c, b, 1.0);
+    	this.createTriangle(a, d, b, 2.0);
+    	this.createTriangle(a, c, d, 3.0);
 	
 }
 
 Tetra.prototype.createTriangle = function(a,b,c, index)
 {
-	console.log("creating triangle for: " + index);
+	//console.log("creating triangle for: " + index);
 	//vertices
 	this.tetVertices.push(a);
 	this.tetVertices.push(b);
@@ -44,11 +44,11 @@ Tetra.prototype.createTriangle = function(a,b,c, index)
 	this.tetNormals.push(normal);
 	this.tetNormals.push(normal);
 	this.tetNormals.push(normal);
-
+	
 	//indices
-	this.tetFaceIndices.push(index);
-	this.tetFaceIndices.push(index);
-	this.tetFaceIndices.push(index);
+	this.tetFaceIndices.push(parseFloat(index));
+	this.tetFaceIndices.push(parseFloat(index));
+	this.tetFaceIndices.push(parseFloat(index));
 
 	//colors
 	var col = vec3(Math.random(), Math.random, Math.random());
@@ -57,11 +57,11 @@ Tetra.prototype.createTriangle = function(a,b,c, index)
 	this.tetColors.push(col);
 
 	//tex coords
-	this.tetTexCoords.push(vec2(0.5,0.5));
 	this.tetTexCoords.push(vec2(0.0,0.0));
+	this.tetTexCoords.push(vec2(0.0,1.0));
 	this.tetTexCoords.push(vec2(1.0,0.0));
 
-	this.index += 3;
+	//this.index += 3;
 }
 
 Tetra.prototype.genBuffers = function(shaderID)
@@ -82,7 +82,7 @@ Tetra.prototype.genBuffers = function(shaderID)
 	//indices
 	this.tetFaceIndexBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.tetFaceIndexBuf);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.tetFaceIndices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float16Array(this.tetFaceIndices), gl.STATIC_DRAW);
 	gl.vertexAttribPointer(this.faceIndexAttrLoc, 1, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(this.faceIndexAttrLoc);
 
@@ -136,22 +136,32 @@ Tetra.prototype.genTextures = function(a, b, c, d)
 	this.texture2 = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, this.texture2);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
-	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, a );
-
+	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, b );
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	this.texture3 = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, this.texture3);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
-	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, a );
-
+	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, c );
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	this.texture4 = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, this.texture4);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
-	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, a );
-
+	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, d );
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	this.texture1Loc = gl.getUniformLocation(this.shaderProgram, "texture1");
 	this.texture2Loc = gl.getUniformLocation(this.shaderProgram, "texture2");
 	this.texture3Loc = gl.getUniformLocation(this.shaderProgram, "texture3");
 	this.texture4Loc = gl.getUniformLocation(this.shaderProgram, "texture4");
+	console.log("Tex units: " +this.texture1Loc+" "+this.texture2Loc+" "+this.texture3Loc+" "+this.texture4Loc);
 		
 }
 

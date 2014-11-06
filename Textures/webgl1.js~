@@ -93,7 +93,7 @@ var  unif_ambientProduct, unif_diffuseProduct, unif_specularProduct; //lighting
 var  unif_lightPosition;
 var unif_shininess;
 var radius = 10;
-var theta  = 1.0;
+var theta  = 2.0;
 var phi    = 2.0;
 var dr = 2.0 * Math.PI/180.0;
 
@@ -227,7 +227,7 @@ window.onload = function init(){
 	//init plane buffers
     	plane.genBuffers(program_texonly);
     	plane.genTextures(document.getElementById("texImage"));
-	console.log("Max texture units supported: " gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
+	console.log("Max texture units supported: " + gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
 	tetra = new Tetra();
 	tetra.genBuffers(program_tetra);
 	tetra.genTextures(document.getElementById("tetImage1"),document.getElementById("tetImage2"),document.getElementById("tetImage3"),document.getElementById("tetImage4"));
@@ -319,6 +319,7 @@ function render(){
 	gl.uniformMatrix4fv(gl.getUniformLocation(program_tetra,"uPMatrix"), false, flatten(pMatrix));
 	mStack.push(mvMatrix);
 	mvMatrix = mult(mvMatrix, translate(0,1.6,0));
+	mvMatrix = mult(mvMatrix, rotate(180, 0,1,0));
 	mvMatrix = mult(mvMatrix, rotate(-20, 1,0,0));
 	mvMatrix = mult(mvMatrix, scale2(5,5,5));
 	gl.uniformMatrix4fv(gl.getUniformLocation(program_tetra, "uMVMatrix"), false, flatten(mvMatrix));

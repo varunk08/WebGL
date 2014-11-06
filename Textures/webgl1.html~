@@ -196,17 +196,17 @@ vec3 N = normalize ( (uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
 	//final position and color updates
 	gl_Position = uPMatrix * viewMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);;
 
-	color = vec4(N, 1.0) + vec4(aVertexColor,1.0) + vec4(0.0,aTexCoord,1.0);
+	color = vec4(N, 0.0) + vec4(aVertexColor,0.0) + vec4(0.0,aTexCoord,0.0);
 	
 	//color = vec4(N,1.0);
-	color.a = 1.0;
+	color.a = 0.0;
 	fTexCoord = aTexCoord;
 	fFaceIndex = aFaceIndex;
 }
 </script>
 <script id="fs_tet" type="x-shader/x-fragment">
 //FRAGMENT SHADER
-precision mediump float;
+precision highp float;
 
 varying float fFaceIndex;
 varying vec2 fTexCoord;
@@ -219,24 +219,24 @@ uniform sampler2D texture4;
 varying vec4 color;
 
 void main(){
-	vec4 outColor = vec4(0.0,0.0,0.0,1.0);
-	if(fFaceIndex == 0.0)
+	vec4 outColor;// = vec4(0.0,0.0,0.0,1.0);
+	if(fFaceIndex >= 0.0 && fFaceIndex <= 0.2)  
 	{
-		outColor =  vec4(1.0,0.0,0.0,1.0);//texture2D(texture1, fTexCoord);
+		outColor =  texture2D(texture1, fTexCoord);
 	}
-	else if(fFaceIndex == 1.0)
+	else if(fFaceIndex >= 1.0 && fFaceIndex <= 2.0) //towards dog
 	{
-		outColor =  vec4(0.0,1.0,0.0,1.0);//texture2D(texture2, fTexCoord);
+		outColor =  texture2D(texture2, fTexCoord);
 	}
-	else if(fFaceIndex == 2.0)
+	else if(fFaceIndex >= 2.0 && fFaceIndex <= 3.0) //bottom
 	{
-		outColor =  vec4(0.0,0.0,1.0,1.0);//texture2D(texture3, fTexCoord);
+		outColor =  texture2D(texture3, fTexCoord);
 	}
-	else if(fFaceIndex == 3.0)
+	else if(fFaceIndex >= 2.9 && fFaceIndex <= 3.1)
 	{
 		outColor =  texture2D(texture4, fTexCoord);
 	}
-	else if(fFaceIndex == -1.0)
+	else
 	{
 		outColor = color;
 	}
@@ -247,11 +247,11 @@ void main(){
 
 </head>
 <body>
-<canvas id="mycanvas" width="512" height="512"></canvas>
+<canvas id="mycanvas" width="640" height="640"></canvas>
 <button id="button1">Sample button</button>
 <textarea id="txtArea" width = "500" height="200"></textarea>
 <img id = "texImage" src = "images/sigimage.gif" hidden></img>
-<img id = "tetImage1" src = "images/image1.jpeg" hidden></img>
+<img id = "tetImage1" src = "images/sigimage.gif" hidden></img>
 <img id = "tetImage2" src = "images/image2.jpeg" hidden></img>
 <img id = "tetImage3" src = "images/image3.jpeg" hidden></img>
 <img id = "tetImage4" src = "images/image4.jpeg" hidden></img>

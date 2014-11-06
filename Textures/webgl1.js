@@ -93,7 +93,7 @@ var  unif_ambientProduct, unif_diffuseProduct, unif_specularProduct; //lighting
 var  unif_lightPosition;
 var unif_shininess;
 var radius = 10;
-var theta  = 1.0;
+var theta  = 2.0;
 var phi    = 2.0;
 var dr = 2.0 * Math.PI/180.0;
 
