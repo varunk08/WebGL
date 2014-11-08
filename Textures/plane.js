@@ -58,8 +58,23 @@ this.materialAmbient = vec4(0.2125, 0.1275, 0.054, 1.0);
 this.materialDiffuse = vec4(0.714, 0.4284, 0.18144, 1.0);
 this.materialSpecular = vec4(0.393548, 0.271906, 0.166721, 1.0);
 this.shininess = 25.6;
+var texSize = 256;
+var numChecks = 16;
+this.checkImage = new Uint8Array(4*texSize*texSize);
 
-this.pVertices = [];
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            var patchx = Math.floor(i/(texSize/numChecks));
+            var patchy = Math.floor(j/(texSize/numChecks));
+            if(patchx%2 ^ patchy%2) c = 255;
+            else c = 0;
+            //c = 255*(((i & 0x8) == 0) ^ ((j & 0x8)  == 0))
+            this.checkImage [4*i*texSize+4*j] = c;
+            this.checkImage [4*i*texSize+4*j+1] = c;
+            this.checkImage [4*i*texSize+4*j+2] = c;
+            this.checkImage [4*i*texSize+4*j+3] = 255;
+        }
+    }
 
 };
 function BisectTriangles(count, a, b, c)
@@ -170,12 +185,13 @@ Plane.prototype.updateLightParams = function(lightIntensities, lightPositions)
 }
 Plane.prototype.genTextures = function(image)
 {
+var texSize = 256;
 	gl.useProgram(this.shaderProgram);
 	this.texture = gl.createTexture();
     gl.bindTexture( gl.TEXTURE_2D, this.texture );
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image );
-
+    //gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.checkImage );
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0,  gl.RGBA, gl.UNSIGNED_BYTE, this.checkImage);
     gl.generateMipmap( gl.TEXTURE_2D );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );

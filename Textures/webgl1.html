@@ -73,7 +73,7 @@ float attenuation = 1.0;
 	vec4 ambient = 0.2 * fcolor * ambientProduct; ambient.a =1.0;
 	//diffuse
 	if(spotCos > 0.97){
-	attenuation = pow(spotCos, 80.0);
+	attenuation = pow(spotCos, 50.0);
 	float Kd = max( dot(N,L), 0.0 );
 	  diffuse =attenuation* Kd*diffuseProduct;
 	//specular
@@ -155,7 +155,7 @@ vec4 diffuse = vec4(0,0,0,1);
 	//ambient 
 	vec4 ambient = 0.2 * fcolor * ambientProduct; ambient.a = 1.0;
 	if(spotCos > 0.97){
-	attenuation = pow(spotCos, 1.0);
+	attenuation = pow(spotCos, 50.0);
 	float Kd = max( dot(normalize(N),normalize(L)), 0.0 );
 	  diffuse =attenuation* Kd*diffuseProduct;
 	//specular
