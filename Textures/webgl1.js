@@ -321,7 +321,7 @@ function render(){
 	gl.useProgram(program_texonly);
 	mStack.push(mvMatrix);
 	
-	mvMatrix = mult(mvMatrix, scale2(30,1,30));
+	mvMatrix = mult(mvMatrix, scale2(1,1,1));
 	normMat = transpose(inverse(mult(viewMatrix,mvMatrix)));
 	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly, "uMVMatrix"), false, flatten(mvMatrix));
 	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"uNMatrix"), false, flatten(normMat));
