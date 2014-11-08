@@ -161,7 +161,7 @@ Tetra.prototype.genTextures = function(a, b, c, d)
 	this.texture2Loc = gl.getUniformLocation(this.shaderProgram, "texture2");
 	this.texture3Loc = gl.getUniformLocation(this.shaderProgram, "texture3");
 	this.texture4Loc = gl.getUniformLocation(this.shaderProgram, "texture4");
-	console.log("Tex units: " +this.texture1Loc+" "+this.texture2Loc+" "+this.texture3Loc+" "+this.texture4Loc);
+	//console.log("Tex units: " +this.texture1Loc+" "+this.texture2Loc+" "+this.texture3Loc+" "+this.texture4Loc);
 		
 }
 

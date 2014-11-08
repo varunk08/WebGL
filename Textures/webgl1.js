@@ -90,24 +90,22 @@ var eye;
 var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
 var  unif_ambientProduct, unif_diffuseProduct, unif_specularProduct; //lighting
-var  unif_lightPosition;
+var  unif_lightPosition; var unif_spotLightPos;
 var unif_shininess;
-var radius = 10;
+var radius = 25;
 var theta  = 2.0;
 var phi    = 2.0;
 var dr = 2.0 * Math.PI/180.0;
 
 var plane;
 var tetra;
-
+var lightIs = [];
+var lightPosInfo = [];
 //INIT function -------------------------------------------------------
 window.onload = function init(){
 	 
 	//UI
-	var mybutton = document.getElementById("button1");
-	mybutton.addEventListener("click", function(){
-
-	});
+	
 	canvas = document.getElementById("mycanvas");
 	if(!canvas){ 
 		alert("No canvas tag");
@@ -142,8 +140,11 @@ window.onload = function init(){
 		//console.log(lightPosition);
 		event.preventDefault();
 	});
-	document.addEventListener("mousewheel", function(event){
-		radius +=  event.wheelDelta / 10.0;
+	var mousewheelevt=(/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel";
+	document.addEventListener(mousewheelevt, function(event){
+		
+		var wheelDelta = (/Firefox/i.test(navigator.userAgent))? event.detail : event.wheelDelta;
+		radius +=  wheelDelta / 10.0;
 		event.preventDefault();
 	});
 	document.addEventListener("mousemove",function(event){
@@ -203,8 +204,9 @@ window.onload = function init(){
 	unif_ambientProduct = gl.getUniformLocation(program1, "ambientProduct");
 	unif_diffuseProduct = gl.getUniformLocation(program1, "diffuseProduct");
 	unif_specularProduct = gl.getUniformLocation(program1, "specularProduct");
+	unif_spotLightPos= gl.getUniformLocation(program1, "spotLightPos");;
     unif_lightPosition = gl.getUniformLocation(program1, "lightPosition");;
-    unif_shininess = gl.getUniformLocation(program1, "shininess");
+	unif_shininess = gl.getUniformLocation(program1, "shininess");
     viewMatrixUnif = gl.getUniformLocation(program1, "viewMatrix");
 	useLightingUnif = gl.getUniformLocation(program1, "useLighting");
 	
@@ -227,6 +229,13 @@ window.onload = function init(){
 	//init plane buffers
     	plane.genBuffers(program_texonly);
     	plane.genTextures(document.getElementById("texImage"));
+		
+		lightIs.amb = lightAmbient; 
+		lightIs.diff = lightDiffuse;
+		lightIs.spec = lightSpecular;
+		lightPosInfo.lightPos = lightPosition;
+		lightPosInfo.spotLightPos = spotLightPosition;
+		plane.updateLightParams(lightIs, lightPosInfo);
 	console.log("Max texture units supported: " + gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
 	tetra = new Tetra();
 	tetra.genBuffers(program_tetra);
@@ -264,20 +273,14 @@ function render(){
 	gl.viewport(0,0,canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
-	gl.useProgram(program1);
-	gl.uniform4fv( unif_lightPosition,flatten(lightPosition) );
-	//View matrix
-	//eye = vec3(radius*Math.sin(theta)*Math.cos(phi), radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
 	var t = radius * Math.cos(phi);
 	var y = radius * Math.sin(phi);
 	var x = t * Math.cos(theta);
 	var z = t * Math.sin(theta);
 	eye = vec3(x,y,z);
 	var viewMatrix = lookAt(eye, at, up);
-	gl.uniformMatrix4fv(viewMatrixUnif, false, flatten(viewMatrix));
-	 
 	
-	gl.uniform1i(useLightingUnif, true);
+	
 	
 	
 	//set mvMatrix to identity
@@ -300,19 +303,7 @@ function render(){
 	//------------------------------------------------------------------------
 	
 	
-	//---------------//DRAWE PLANE-----------------------------------------------
-	gl.useProgram(program_texonly);
-	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"viewMatrix"), false, flatten(viewMatrix));
-	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"uPMatrix"), false, flatten(pMatrix));
-	mStack.push(mvMatrix);
-	mvMatrix = mult(mvMatrix, scale2(20,20,20));
-	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly, "uMVMatrix"), false, flatten(mvMatrix));
-	normMat = transpose((inverse(mvMatrix)));
-	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"uNMatrix"), false, flatten(normMat));
-	plane.drawPlane();	
-	mvMatrix = mStack.pop();
 	
-	//------------------------------------------------------------------------
 	//---------------//DRAWE TETRA-----------------------------------------------
 	gl.useProgram(program_tetra);
 	gl.uniformMatrix4fv(gl.getUniformLocation(program_tetra,"viewMatrix"), false, flatten(viewMatrix));
@@ -322,14 +313,35 @@ function render(){
 	mvMatrix = mult(mvMatrix, rotate(-20, 1,0,0));
 	mvMatrix = mult(mvMatrix, scale2(5,5,5));
 	gl.uniformMatrix4fv(gl.getUniformLocation(program_tetra, "uMVMatrix"), false, flatten(mvMatrix));
-	normMat = transpose((inverse(mvMatrix)));
+	normMat = transpose(inverse(mult(viewMatrix, mvMatrix)));
 	gl.uniformMatrix4fv(gl.getUniformLocation(program_tetra,"uNMatrix"), false, flatten(normMat));
-	tetra.drawTet();	
+	//tetra.drawTet();	
+	mvMatrix = mStack.pop();
+	//---------------//DRAWE PLANE-----------------------------------------------
+	gl.useProgram(program_texonly);
+	mStack.push(mvMatrix);
+	
+	mvMatrix = mult(mvMatrix, scale2(30,1,30));
+	normMat = transpose(inverse(mult(viewMatrix,mvMatrix)));
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly, "uMVMatrix"), false, flatten(mvMatrix));
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"uNMatrix"), false, flatten(normMat));
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"viewMatrix"), false, flatten(viewMatrix));
+	gl.uniformMatrix4fv(gl.getUniformLocation(program_texonly,"uPMatrix"), false, flatten(pMatrix));
+	gl.uniform4fv( gl.getUniformLocation(program_texonly,"lightPosition"),flatten(lightPosition) );
+	gl.uniform4fv( gl.getUniformLocation(program_texonly,"spotLightPos"),flatten(spotLightPosition) );
+	plane.drawPlane();	
+	
 	mvMatrix = mStack.pop();
 	
 	//------------------------------------------------------------------------
+	//------------------------------------------------------------------------
 	// Sphere buffers
 	gl.useProgram(program1);
+	gl.useProgram(program1);
+	gl.uniform4fv( unif_spotLightPos,flatten(spotLightPosition) );
+	gl.uniform4fv( unif_lightPosition,flatten(lightPosition) );
+	gl.uniformMatrix4fv(viewMatrixUnif, false, flatten(viewMatrix));
+	gl.uniform1i(useLightingUnif, true);
 	gl.bindBuffer(gl.ARRAY_BUFFER, sphVertBuf);
 	gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0,0);
 	
@@ -344,19 +356,27 @@ function render(){
 	mvMatrix = mult(mvMatrix, ltrans);
 	mvMatrix = mult(mvMatrix, scale2(0.25,0.25,0.25));
 	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(mvMatrix));
-	normMat = transpose((inverse(mvMatrix)));
+	normMat = transpose((inverse( mult(viewMatrix,mvMatrix))));
+	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
+	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
+	mvMatrix = mStack.pop();
+
+	mStack.push(mvMatrix);
+	var ltrans = translate(vec3(spotLightPosition[0],spotLightPosition[1],spotLightPosition[2]));
+	mvMatrix = mult(mvMatrix, ltrans);
+	mvMatrix = mult(mvMatrix, scale2(2,2,2));
+	gl.uniformMatrix4fv(mvMatrixUnif, false, flatten(mvMatrix));
+	normMat = transpose((inverse( mult(viewMatrix,mvMatrix))));
 	gl.uniformMatrix4fv(nMatrixUnif, false, flatten(normMat));
 	gl.drawArrays(gl.TRIANGLES, 0, sphereVertices.length);
 	mvMatrix = mStack.pop();
 
 
-
-
 	//-------------------------- TORSO ----------------------------------------
 	mStack.push(mvMatrix); //Save default mv matrix
 	//translate to origin
-	mvMatrix = mult(mvMatrix, translate ( 5.0, 2.7, 0.0) );
-	
+	mvMatrix = mult(mvMatrix, translate ( 5.0, 5.7, 0.0) );
+	mvMatrix = mult(mvMatrix, scale2 ( 2.0, 2.0, 2.0) );
 	
 	//scale
 	var itrans1 = translate(1.0, 0.0, 0.0);

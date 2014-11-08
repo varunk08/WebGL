@@ -5,31 +5,39 @@ var Plane = function(){
 
 //data	
 	this.planeVertices = [
-	-1.0, 0.0, -1.0,
-	-1.0, 0.0, 1.0,
-	1.0, 0.0, 1.0,
-	1.0, 0.0, -1.0
+	vec3(-1.0, 0.0, -1.0),
+	vec3(-1.0, 0.0, 1.0),
+	vec3(1.0, 0.0, 1.0),
+	vec3(1.0, 0.0, -1.0),
+	vec3(0.0, 0.0, 0.0)
+	
 	];
 
 	this.planeIndices = [
-	0,1,2,
-	0,2,3
+	0,1,4,
+	1,2,4,
+	2,3,4,
+	3,0,4
 	];
 
 this.planeNormals = [
-	0.0, 1.0, 0.0,
-	0.0, 1.0, 0.0,
-	0.0, 1.0, 0.0,
-	0.0, 1.0, 0.0
+	vec3(0.0, 1.0, 0.0),
+	vec3(0.0, 1.0, 0.0),
+	vec3(0.0, 1.0, 0.0),
+	vec3(0.0, 1.0, 0.0),
+	vec3(0.0, 1.0, 0.0)
 ];
 
 this.planeTexCoords = [
-	0.0, 1.0,
-	0.0, 0.0,
-	1.0, 0.0,
-	1.0, 1.0,
+	
+	vec2(0.0, 1.0),
+	vec2(0.0, 0.0),
+	vec2(1.0, 0.0),
+	vec2(1.0, 1.0),
+	vec2(0.5,0.5),
 ];
 this.planeColors = [
+	1.0, 0.0, 0.0,
 	1.0, 0.0, 0.0,
 	1.0, 0.0, 0.0,
 	1.0, 0.0, 0.0,
@@ -45,9 +53,49 @@ this.vertAttrLoc = -1;
 this.colAttrLoc = -1;
 this.texAttrLoc = -1;
 this.normalAttrLoc = -1;
-};
 
-//vertex attib locations needed
+this.materialAmbient = vec4(0.2125, 0.1275, 0.054, 1.0);
+this.materialDiffuse = vec4(0.714, 0.4284, 0.18144, 1.0);
+this.materialSpecular = vec4(0.393548, 0.271906, 0.166721, 1.0);
+this.shininess = 25.6;
+
+this.pVertices = [];
+
+};
+function BisectTriangles(count, a, b, c)
+{
+	if(count === 0){
+		triangle(a, b, c);
+		
+	}
+else{
+
+//divide - create vertices then triangles 
+var ab = mix(a,b,0.5);
+var bc = mix(b,c,0.5);
+var ca = mix(c,a,0.5);
+//decrement count
+--count;
+//call bisect on 4 children
+BisectTriangles(count, a, ab, ca);
+BisectTriangles(count, ab, b, bc);
+BisectTriangles(count, ca, bc, c);
+BisectTriangles(count, ab, ca, bc);
+}
+}
+
+function triangle(a, b, c)
+{
+	var color = vec3(Math.random(), Math.random(), Math.random());
+
+	points.push(a);
+	colors.push(color);
+	points.push(b);
+	colors.push(color);
+	points.push(c);
+	colors.push(color);
+}
+//vertex attrib locations needed
 Plane.prototype.genBuffers = function(shaderID)
 {
 	this.shaderProgram = shaderID;
@@ -68,7 +116,7 @@ Plane.prototype.genBuffers = function(shaderID)
 	//vertex
 	this.planeVertBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.planeVertBuf);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.planeVertices),gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(this.planeVertices),gl.STATIC_DRAW);
 
 	gl.vertexAttribPointer(this.vertAttrLoc, 3, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(this.vertAttrLoc);
@@ -76,7 +124,7 @@ Plane.prototype.genBuffers = function(shaderID)
 	//normals
 	this.planeNormalBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.planeNormalBuf);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.planeNormals),gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(this.planeNormals),gl.STATIC_DRAW);
 	
 	gl.vertexAttribPointer(this.normalAttrLoc, 3, gl.FLOAT, false, 0, 0);	
 	gl.enableVertexAttribArray(this.normalAttrLoc);
@@ -92,15 +140,34 @@ Plane.prototype.genBuffers = function(shaderID)
 	//tex coords
 	this.texCoordBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoordBuf);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.planeTexCoords),gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(this.planeTexCoords),gl.STATIC_DRAW);
 	
 	gl.vertexAttribPointer(this.texAttrLoc, 2, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(this.texAttrLoc);
 
-
+	//lighting and material properties
+	this.unif_ambientProduct = gl.getUniformLocation(shaderID, "ambientProduct");
+	this.unif_diffuseProduct = gl.getUniformLocation(shaderID, "diffuseProduct");
+	this.unif_specularProduct = gl.getUniformLocation(shaderID, "specularProduct");
+	this.unif_shininess = gl.getUniformLocation(shaderID, "shininess");
+    this.unif_lightPosition = gl.getUniformLocation(shaderID, "lightPosition");
+	this.unif_spotLightDir = gl.getUniformLocation(shaderID, "spotLightDir");
+    
 
 }
-
+Plane.prototype.updateLightParams = function(lightIntensities, lightPositions)
+{
+	this.lightIntensities = lightIntensities;
+	this.lightPos = lightPositions.lightPos;
+	
+	this.spotLightPos = lightPositions.spotLightPos;
+	//console.log(this.spotLightDir);
+	this.ambProd = mult(this.lightIntensities.amb, this.materialAmbient);
+	this.diffProd = mult(this.lightIntensities.diff, this.materialDiffuse);
+	this.specProd = mult(this.lightIntensities.spec, this.materialSpecular);
+	
+	
+}
 Plane.prototype.genTextures = function(image)
 {
 	gl.useProgram(this.shaderProgram);
@@ -118,6 +185,7 @@ Plane.prototype.genTextures = function(image)
 
 Plane.prototype.drawPlane = function()
 {
+		
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.planeVertBuf);
 	gl.vertexAttribPointer(this.vertAttrLoc, 3, gl.FLOAT, false, 0, 0);
 
@@ -134,6 +202,13 @@ Plane.prototype.drawPlane = function()
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, this.texture);
 	gl.uniform1i(this.textureLoc, 0);
-	gl.drawElements(gl.TRIANGLES, /*num vertices*/ 6, gl.UNSIGNED_BYTE, 0 );
+	
+	gl.uniform4fv( this.unif_ambientProduct,flatten(this.ambProd) );
+    gl.uniform4fv( this.unif_diffuseProduct,flatten(this.diffProd) );
+    gl.uniform4fv( this.unif_specularProduct,flatten(this.specProd) );	
+    gl.uniform1f( this.unif_shininess,this.shininess );
+
+	
+	gl.drawElements(gl.TRIANGLES, /*num vertices*/ 12, gl.UNSIGNED_BYTE, 0 );
 
 }
