@@ -128,14 +128,14 @@ sphereNormals.push(normal);
 	
 
 	//UV coords
-	var ua = 0.5 + Math.atan2(-a[2],-a[0])/ (2.0 * Math. PI);
-	var va = 0.5 - Math.sin(-a[1]) / Math.PI;
+	var ua = 0.5 + Math.atan2(a[2],a[0])/ (2.0 * Math. PI);
+	var va = 0.5 - Math.sin(a[1]) / Math.PI;
 
-	var ub = 0.5 + Math.atan2(-b[2],-b[0])/ (2.0 * Math. PI);
-	var vb = 0.5 - Math.sin(-b[1]) / Math.PI;
+	var ub = 0.5 + Math.atan2(b[2],b[0])/ (2.0 * Math. PI);
+	var vb = 0.5 - Math.sin(b[1]) / Math.PI;
 
-	var uc = 0.5 + Math.atan2(-c[2],-c[0])/ (2.0 * Math. PI);
-	var vc = 0.5 - Math.sin(-c[1]) / Math.PI;
+	var uc = 0.5 + Math.atan2(c[2],c[0])/ (2.0 * Math. PI);
+	var vc = 0.5 - Math.sin(c[1]) / Math.PI;
 
 	sphereUVCoords.push(vec2(ua,va));
 	sphereUVCoords.push(vec2(ub,vb));

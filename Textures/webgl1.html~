@@ -91,7 +91,7 @@ float attenuation = 1.0;
 	}
 	
 	vec4 outColor = ambient +  diffuse + specular;
-	gl_FragColor =  0.0 * outColor  + 1.0 * texture2D(texture,fVertexUV);
+	gl_FragColor =  0.5 * outColor  + 0.5 * texture2D(texture,fVertexUV);
 }
 </script>
 
